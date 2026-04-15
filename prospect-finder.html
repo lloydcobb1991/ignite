@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignite Prospect Hunter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #12101a;
+    --surface: #1a1726;
+    --surface2: #221e30;
+    --border: #2e2a3f;
+    --border2: #3d3856;
+    --accent: #00ff88;
+    --accent2: #00dd77;
+    --accent-dim: rgba(0,255,136,0.10);
+    --accent-glow: rgba(0,255,136,0.22);
+    --purple: #7c5cbf;
+    --purple-dim: rgba(124,92,191,0.15);
+    --text: #ede9f8;
+    --text2: #8f89a8;
+    --text3: #524d6a;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --blue: #60a5fa;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.85)} }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .credits-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+  .credits-badge span { color: var(--accent); font-weight: 500; }
+
+  /* Layout */
+  .app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 61px); }
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Sidebar sections */
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  /* API key */
+  .key-row { display: flex; gap: 8px; }
+  .key-row input { flex: 1; }
+  .key-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--text3);
+  }
+  .key-status.ok { color: var(--accent); }
+  .key-status.err { color: var(--red); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Inputs */
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--border2); }
+  input[type=password] { font-family: 'DM Mono', monospace; letter-spacing: 0.05em; }
+  select option { background: var(--surface2); }
+
+  /* Tags */
+  .tag-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    background: transparent;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+  .tag.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Buttons */
+  button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    border: none;
+    outline: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a1a0f;
+    font-weight: 600;
+    padding: 10px 18px;
+    width: 100%;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { background: var(--border2); color: var(--text3); cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn-icon:hover { color: var(--text); border-color: var(--border2); }
+
+  /* Results toolbar */
+  .results-toolbar {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+  .results-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    flex: 1;
+  }
+  .results-count strong { color: var(--accent); }
+  .filter-row { display: flex; gap: 8px; align-items: center; }
+  .filter-row input { width: 200px; }
+  .filter-row select { width: 160px; }
+
+  /* Table */
+  .table-wrap { flex: 1; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 12px 16px; vertical-align: middle; }
+  .td-name { font-weight: 500; color: var(--text); }
+  .td-email {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--blue);
+  }
+  .td-title { color: var(--text2); font-size: 13px; }
+  .td-company { color: var(--text); font-size: 13px; }
+  .td-industry {
+    font-size: 11px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+  .conf-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .conf-high { background: rgba(0,255,136,0.10); color: var(--accent); }
+  .conf-med  { background: rgba(251,191,36,0.12);  color: var(--amber); }
+  .conf-low  { background: rgba(255,255,255,0.06); color: var(--text3); }
+
+  input[type=checkbox] {
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+  }
+
+  /* Empty / loading states */
+  .state-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text3);
+    padding: 60px 24px;
+    text-align: center;
+  }
+  .state-icon {
+    font-size: 32px;
+    opacity: 0.4;
+  }
+  .state-title { font-size: 15px; color: var(--text2); font-weight: 500; }
+  .state-sub { font-size: 13px; max-width: 300px; line-height: 1.6; }
+
+  /* Progress */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+
+  /* Log panel */
+  .log-panel {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 12px 24px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .log-line {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.8;
+  }
+  .log-line.ok  { color: var(--accent); }
+  .log-line.err { color: var(--red); }
+  .log-line.info { color: var(--text2); }
+
+  /* Selected strip */
+  .selected-strip {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: var(--accent-dim);
+    border-bottom: 1px solid var(--accent);
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .selected-strip.visible { display: flex; }
+  .selected-strip strong { font-weight: 600; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    ignite prospect hunter
+  </div>
+  <div class="header-right">
+    <div class="credits-badge">apollo free tier — <span id="creditNote">500 searches/mo</span></div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <div class="section-label">Apollo API Key</div>
+      <div class="key-row">
+        <input type="password" id="apiKey" placeholder="Paste master key..." />
+        <button class="btn-icon" onclick="testKey()">Test</button>
+      </div>
+      <div class="key-status" id="keyStatus">
+        <div class="status-dot"></div> not connected
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Industries</div>
+      <div class="tag-group" id="industryTags">
+        <span class="tag active" data-val="hospitality">Hospitality</span>
+        <span class="tag active" data-val="food & beverages">Food & Bev</span>
+        <span class="tag active" data-val="entertainment">Entertainment</span>
+        <span class="tag active" data-val="health, wellness and fitness">Wellness</span>
+        <span class="tag active" data-val="consumer goods">Consumer</span>
+        <span class="tag active" data-val="events services">Events</span>
+        <span class="tag" data-val="cannabis & cbd">Cannabis</span>
+        <span class="tag" data-val="restaurants">Restaurants</span>
+        <span class="tag" data-val="retail">Retail</span>
+        <span class="tag" data-val="sports">Sports</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Roles</div>
+      <div class="tag-group" id="roleTags">
+        <span class="tag active" data-val="CMO">CMO</span>
+        <span class="tag active" data-val="Chief Marketing Officer">Chief Mktg Officer</span>
+        <span class="tag active" data-val="VP Marketing">VP Marketing</span>
+        <span class="tag active" data-val="Brand Director">Brand Director</span>
+        <span class="tag active" data-val="Creative Director">Creative Director</span>
+        <span class="tag active" data-val="Head of Marketing">Head of Marketing</span>
+        <span class="tag active" data-val="Marketing Director">Mktg Director</span>
+        <span class="tag" data-val="CEO">CEO</span>
+        <span class="tag" data-val="Founder">Founder</span>
+        <span class="tag" data-val="Director of Communications">Comms Director</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Company Size</div>
+      <div class="tag-group" id="sizeTags">
+        <span class="tag" data-val="1,10">1–10</span>
+        <span class="tag active" data-val="11,20">11–20</span>
+        <span class="tag active" data-val="21,50">21–50</span>
+        <span class="tag active" data-val="51,100">51–100</span>
+        <span class="tag active" data-val="101,200">101–200</span>
+        <span class="tag active" data-val="201,500">201–500</span>
+        <span class="tag" data-val="501,1000">500+</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Location</div>
+      <select id="locationSelect">
+        <option value="United States">United States</option>
+        <option value="">Worldwide</option>
+        <option value="United Kingdom">United Kingdom</option>
+        <option value="Canada">Canada</option>
+        <option value="Australia">Australia</option>
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Results per search</div>
+      <select id="maxPages">
+        <option value="2">20 contacts (2 pages)</option>
+        <option value="3">30 contacts (3 pages)</option>
+        <option value="5" selected>50 contacts (5 pages)</option>
+        <option value="10">100 contacts (10 pages)</option>
+      </select>
+    </div>
+
+    <div class="sidebar-section" style="border-bottom:none">
+      <button class="btn-primary" id="searchBtn" onclick="runSearch()">Search Prospects</button>
+      <div class="progress-bar" style="margin-top:10px">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Toolbar -->
+    <div class="results-toolbar">
+      <div class="results-count" id="resultsCount">No results yet — configure filters and search</div>
+      <div class="filter-row">
+        <input type="text" id="searchFilter" placeholder="Filter results..." oninput="applyFilter()" />
+        <select id="sortSelect" onchange="applyFilter()">
+          <option value="name">Sort: Name</option>
+          <option value="company">Sort: Company</option>
+          <option value="title">Sort: Title</option>
+        </select>
+        <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Selected strip -->
+    <div class="selected-strip" id="selectedStrip">
+      <strong id="selectedCountText">0 selected</strong>
+      <span style="color:var(--text3)">·</span>
+      <button class="btn-ghost" style="padding:4px 10px;font-size:12px" onclick="exportSelected()">Export selected</button>
+      <button class="btn-ghost" style="padding:4px 10px;font-size:12px" onclick="clearSelection()">Clear</button>
+    </div>
+
+    <!-- Results table -->
+    <div class="table-wrap" id="tableWrap">
+      <div class="state-panel" id="emptyState">
+        <div class="state-icon">◎</div>
+        <div class="state-title">Ready to find prospects</div>
+      </div>
+      <table id="resultsTable" style="display:none">
+        <thead>
+          <tr>
+            <th style="width:36px"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" /></th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Industry</th>
+            <th>Size</th>
+            <th>LinkedIn</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Log -->
+    <div class="log-panel" id="logPanel"></div>
+
+  </div>
+</div>
+
+<script>
+  let allContacts = [];
+  let filtered    = [];
+  let selected    = new Set();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tag').forEach(tag => {
+      tag.addEventListener('click', () => tag.classList.toggle('active'));
+    });
+    document.getElementById('apiKey').addEventListener('input', function() {
+      const key = this.value.trim();
+      if (!key) { setKeyStatus('not connected', null); return; }
+      if (key.length >= 20) setKeyStatus('Key ready', true);
+      else setKeyStatus('Keep typing...', null);
+    });
+  });
+
+  function getActive(groupId) {
+    return [...document.querySelectorAll(`#${groupId} .tag.active`)].map(t => t.dataset.val);
+  }
+
+  function testKey() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key) { setKeyStatus('Enter a key first', false); return; }
+    if (key.length < 20) { setKeyStatus('Key looks too short', false); return; }
+    setKeyStatus('Key saved — will confirm on first search', true);
+  }
+
+  function setKeyStatus(msg, ok) {
+    const el = document.getElementById('keyStatus');
+    el.className = 'key-status' + (ok === true ? ' ok' : ok === false ? ' err' : '');
+    el.innerHTML = `<div class="status-dot"></div> ${msg}`;
+  }
+
+  // ---- Apollo API ----
+  async function apolloPost(endpoint, body, keyOverride) {
+    const key = keyOverride || document.getElementById('apiKey').value.trim();
+    const r = await fetch(`https://api.apollo.io/api/v1/${endpoint}`, {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      body: JSON.stringify(body)
+    });
+    return r.json();
+  }
+
+  async function apolloGet(endpoint, params, keyOverride) {
+    const key = keyOverride || document.getElementById('apiKey').value.trim();
+    const r = await fetch(`https://api.apollo.io/api/v1/${endpoint}?${params}`, {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }
+    });
+    return r.json();
+  }
+
+  // ---- Main search ----
+  async function runSearch() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key) { log('Paste your Apollo API key first', 'err'); return; }
+
+    const industries = getActive('industryTags');
+    const roles      = getActive('roleTags');
+    const sizes      = getActive('sizeTags');
+    const location   = document.getElementById('locationSelect').value;
+    const maxPages   = parseInt(document.getElementById('maxPages').value);
+
+    if (!industries.length) { log('Select at least one industry', 'err'); return; }
+    if (!roles.length)      { log('Select at least one role', 'err'); return; }
+
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.textContent = 'Searching...';
+    allContacts = [];
+    selected.clear();
+    clearLog();
+    setProgress(0);
+    document.getElementById('resultsTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+
+    log(`Searching ${industries.length} industries, ${roles.length} roles...`, 'info');
+
+    // Step 1 — search (no credits)
+    const candidates = [];
+    for (let page = 1; page <= maxPages; page++) {
+      setProgress((page / (maxPages * 2)) * 100);
+      log(`Fetching page ${page}/${maxPages}...`);
+
+      const params = new URLSearchParams();
+      roles.forEach(t => params.append('person_titles[]', t));
+      if (location) params.append('person_locations[]', location);
+      sizes.forEach(s => params.append('organization_num_employees_ranges[]', s));
+      industries.forEach(i => params.append('organization_industry_tag_names[]', i));
+      params.set('per_page', '10');
+      params.set('page', String(page));
+
+      try {
+        const data = await apolloGet('mixed_people/api_search', params.toString());
+        const people = data.people || [];
+        if (!people.length) { log(`Page ${page}: no more results`); break; }
+        const withEmail = people.filter(p => p.has_email).length;
+        log(`Page ${page}: ${people.length} results, ${withEmail} with email`, withEmail > 0 ? 'ok' : '');
+        candidates.push(...people);
+      } catch(e) { log(`Page ${page} error: ${e.message}`, 'err'); break; }
+
+      await sleep(300);
+    }
+
+    log(`Found ${candidates.length} candidates. Enriching contacts with emails...`, 'info');
+
+    // Step 2 — enrich (credits)
+    const toEnrich = candidates.filter(p => p.has_email).slice(0, 50);
+    if (!toEnrich.length) {
+      log('No contacts with emails found. Try different filters.', 'err');
+      btn.disabled = false; btn.textContent = 'Search Prospects';
+      return;
+    }
+
+    const BATCH = 10;
+    for (let i = 0; i < toEnrich.length; i += BATCH) {
+      const batch = toEnrich.slice(i, i + BATCH);
+      const pct = 50 + ((i / toEnrich.length) * 50);
+      setProgress(pct);
+      log(`Enriching ${i+1}–${Math.min(i+BATCH, toEnrich.length)} of ${toEnrich.length}...`);
+
+      try {
+        const data = await apolloPost(
+          'people/bulk_match?reveal_personal_emails=false&reveal_phone_number=false',
+          { details: batch.map(p => ({ id: p.id })) }
+        );
+        const matches = (data.matches || []).filter(p => p.email);
+        allContacts.push(...matches);
+        log(`Got ${matches.length} enriched contacts`, 'ok');
+      } catch(e) { log(`Enrichment error: ${e.message}`, 'err'); }
+
+      await sleep(400);
+    }
+
+    setProgress(100);
+    log(`Done! ${allContacts.length} prospects ready.`, 'ok');
+    applyFilter();
+    btn.disabled = false;
+    btn.textContent = 'Search Prospects';
+  }
+
+  // ---- Filter + render ----
+  function applyFilter() {
+    const q    = document.getElementById('searchFilter').value.toLowerCase();
+    const sort = document.getElementById('sortSelect').value;
+
+    filtered = allContacts.filter(p => {
+      if (!q) return true;
+      const hay = [p.first_name, p.last_name, p.email, p.title,
+        p.organization?.name, p.organization?.industry].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    filtered.sort((a, b) => {
+      if (sort === 'company') return (a.organization?.name||'').localeCompare(b.organization?.name||'');
+      if (sort === 'title')   return (a.title||'').localeCompare(b.title||'');
+      return (`${a.first_name} ${a.last_name}`).localeCompare(`${b.first_name} ${b.last_name}`);
+    });
+
+    renderTable();
+    updateCount();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('resultsBody');
+    if (!filtered.length) {
+      document.getElementById('resultsTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('emptyState').innerHTML = `
+        <div class="state-icon">◎</div>
+        <div class="state-title">No results match your filter</div>
+        <div class="state-sub">Try clearing the search box or broadening your filters.</div>`;
+      return;
+    }
+
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsTable').style.display = 'table';
+
+    tbody.innerHTML = filtered.map((p, i) => {
+      const name = `${p.first_name||''} ${p.last_name||''}`.trim();
+      const org  = p.organization || {};
+      const emp  = org.num_employees ? org.num_employees.toLocaleString() : '—';
+      const conf = p.email_status === 'verified' ? 'high' : p.extrapolated_email_confidence > 75 ? 'med' : 'low';
+      const confLabel = conf === 'high' ? 'verified' : conf === 'med' ? 'likely' : 'guessed';
+      const chk  = selected.has(p.id || i);
+      const li   = p.linkedin_url ? `<a href="${p.linkedin_url}" target="_blank" style="color:var(--blue);text-decoration:none;font-family:'DM Mono',monospace;font-size:11px">↗ li</a>` : '—';
+      return `<tr>
+        <td><input type="checkbox" ${chk?'checked':''} onchange="toggleSelect('${p.id||i}', this.checked)" /></td>
+        <td class="td-name">${name}</td>
+        <td class="td-title">${p.title||'—'}</td>
+        <td class="td-company">${org.name||'—'}</td>
+        <td class="td-email">
+          ${p.email||'—'}
+          <span class="conf-badge conf-${conf}" style="margin-left:6px">${confLabel}</span>
+        </td>
+        <td class="td-industry">${org.industry||'—'}</td>
+        <td class="td-industry">${emp}</td>
+        <td>${li}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateCount() {
+    const el = document.getElementById('resultsCount');
+    if (!allContacts.length) { el.innerHTML = 'No results yet — configure filters and search'; return; }
+    el.innerHTML = `<strong>${filtered.length}</strong> of ${allContacts.length} prospects`;
+  }
+
+  // ---- Selection ----
+  function toggleSelect(id, val) {
+    if (val) selected.add(id); else selected.delete(id);
+    updateStrip();
+  }
+  function toggleAll(val) {
+    filtered.forEach((p, i) => val ? selected.add(p.id||i) : selected.delete(p.id||i));
+    renderTable(); updateStrip();
+  }
+  function clearSelection() {
+    selected.clear(); renderTable(); updateStrip();
+    document.getElementById('selectAll').checked = false;
+  }
+  function updateStrip() {
+    const strip = document.getElementById('selectedStrip');
+    if (selected.size > 0) {
+      strip.classList.add('visible');
+      document.getElementById('selectedCountText').textContent = `${selected.size} selected`;
+    } else { strip.classList.remove('visible'); }
+  }
+
+  // ---- Export ----
+  function exportCSV(subset) {
+    const rows = subset || (selected.size > 0
+      ? filtered.filter((p,i) => selected.has(p.id||i))
+      : filtered);
+    if (!rows.length) { log('Nothing to export', 'err'); return; }
+
+    const headers = ['First name','Last name','Email','Email status','Title','Company','Website','Industry','Employees','LinkedIn','City','State','Country'];
+    const escape  = v => `"${String(v||'').replace(/"/g,'""')}"`;
+    const csv = [headers, ...rows.map(p => {
+      const o = p.organization || {};
+      return [p.first_name,p.last_name,p.email,p.email_status,p.title,
+        o.name,o.website_url,o.industry,o.num_employees,
+        p.linkedin_url,p.city,p.state,p.country];
+    })].map(r => r.map(escape).join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `prospects-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    log(`Exported ${rows.length} contacts to CSV`, 'ok');
+  }
+  function exportSelected() { exportCSV(filtered.filter((p,i) => selected.has(p.id||i))); }
+
+  // ---- Log ----
+  function log(msg, type='') {
+    const panel = document.getElementById('logPanel');
+    const line  = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = `${timestamp()} ${msg}`;
+    panel.appendChild(line);
+    panel.scrollTop = panel.scrollHeight;
+  }
+  function clearLog() { document.getElementById('logPanel').innerHTML = ''; }
+  function timestamp() { return new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+  // ---- Progress ----
+  function setProgress(pct) {
+    document.getElementById('progressFill').style.width = Math.round(pct) + '%';
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
