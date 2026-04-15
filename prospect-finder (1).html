@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignite Prospect Hunter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #12101a;
+    --surface: #1a1726;
+    --surface2: #221e30;
+    --border: #2e2a3f;
+    --border2: #3d3856;
+    --accent: #00ff88;
+    --accent2: #00dd77;
+    --accent-dim: rgba(0,255,136,0.10);
+    --accent-glow: rgba(0,255,136,0.22);
+    --purple: #7c5cbf;
+    --purple-dim: rgba(124,92,191,0.15);
+    --text: #ede9f8;
+    --text2: #8f89a8;
+    --text3: #524d6a;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --blue: #60a5fa;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.85)} }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .credits-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+  .credits-badge span { color: var(--accent); font-weight: 500; }
+
+  /* Layout */
+  .app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 61px); }
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Sidebar sections */
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  /* API key */
+  .key-row { display: flex; gap: 8px; }
+  .key-row input { flex: 1; }
+  .key-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--text3);
+  }
+  .key-status.ok { color: var(--accent); }
+  .key-status.err { color: var(--red); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Inputs */
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--border2); }
+  input[type=password] { font-family: 'DM Mono', monospace; letter-spacing: 0.05em; }
+  select option { background: var(--surface2); }
+
+  /* Tags */
+  .tag-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    background: transparent;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+  .tag.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Buttons */
+  button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    border: none;
+    outline: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a1a0f;
+    font-weight: 600;
+    padding: 10px 18px;
+    width: 100%;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { background: var(--border2); color: var(--text3); cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn-icon:hover { color: var(--text); border-color: var(--border2); }
+
+  /* Results toolbar */
+  .results-toolbar {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+  .results-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    flex: 1;
+  }
+  .results-count strong { color: var(--accent); }
+  .filter-row { display: flex; gap: 8px; align-items: center; }
+  .filter-row input { width: 200px; }
+  .filter-row select { width: 160px; }
+
+  /* Table */
+  .table-wrap { flex: 1; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 12px 16px; vertical-align: middle; }
+  .td-name { font-weight: 500; color: var(--text); }
+  .td-email {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--blue);
+  }
+  .td-title { color: var(--text2); font-size: 13px; }
+  .td-company { color: var(--text); font-size: 13px; }
+  .td-industry {
+    font-size: 11px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+  .conf-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .conf-high { background: rgba(0,255,136,0.10); color: var(--accent); }
+  .conf-med  { background: rgba(251,191,36,0.12);  color: var(--amber); }
+  .conf-low  { background: rgba(255,255,255,0.06); color: var(--text3); }
+
+  input[type=checkbox] {
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+  }
+
+  /* Empty / loading states */
+  .state-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text3);
+    padding: 60px 24px;
+    text-align: center;
+  }
+  .state-icon {
+    font-size: 32px;
+    opacity: 0.4;
+  }
+  .state-title { font-size: 15px; color: var(--text2); font-weight: 500; }
+  .state-sub { font-size: 13px; max-width: 300px; line-height: 1.6; }
+
+  /* Progress */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+
+  /* Log panel */
+  .log-panel {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 12px 24px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .log-line {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.8;
+  }
+  .log-line.ok  { color: var(--accent); }
+  .log-line.err { color: var(--red); }
+  .log-line.info { color: var(--text2); }
+
+  /* Selected strip */
+  .selected-strip {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: var(--accent-dim);
+    border-bottom: 1px solid var(--accent);
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .selected-strip.visible { display: flex; }
+  .selected-strip strong { font-weight: 600; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    ignite prospect hunter
+  </div>
+  <div class="header-right">
+    <div class="credits-badge">hunter.io free tier — <span id="creditNote">500 searches/mo</span></div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <div class="section-label">Hunter.io API Key</div>
+      <div class="key-row">
+        <input type="password" id="apiKey" placeholder="Paste API key..." />
+        <button class="btn-icon" onclick="testKey()">Test</button>
+      </div>
+      <div class="key-status" id="keyStatus">
+        <div class="status-dot"></div> not connected
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Verticals</div>
+      <div class="tag-group" id="verticalTags">
+        <span class="tag active" data-val="hospitality">Hospitality</span>
+        <span class="tag active" data-val="food">Food &amp; Bev</span>
+        <span class="tag active" data-val="entertainment">Entertainment</span>
+        <span class="tag active" data-val="wellness">Wellness</span>
+        <span class="tag active" data-val="events">Events</span>
+        <span class="tag" data-val="cannabis">Cannabis</span>
+        <span class="tag" data-val="restaurants">Restaurants</span>
+        <span class="tag" data-val="sports">Sports</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Role filter</div>
+      <div class="tag-group" id="roleTags">
+        <span class="tag active" data-val="cmo">CMO</span>
+        <span class="tag active" data-val="marketing">Marketing</span>
+        <span class="tag active" data-val="brand">Brand</span>
+        <span class="tag active" data-val="creative">Creative</span>
+        <span class="tag active" data-val="vp">VP</span>
+        <span class="tag active" data-val="director">Director</span>
+        <span class="tag" data-val="ceo">CEO</span>
+        <span class="tag" data-val="founder">Founder</span>
+        <span class="tag" data-val="growth">Growth</span>
+        <span class="tag" data-val="communications">Comms</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Min confidence</div>
+      <div class="tag-group" id="confTags">
+        <span class="tag" data-val="0">Any</span>
+        <span class="tag active" data-val="50">50%+</span>
+        <span class="tag" data-val="75">75%+</span>
+        <span class="tag" data-val="90">90%+</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="border-bottom:none">
+      <button class="btn-primary" id="searchBtn" onclick="runSearch()">Search Prospects</button>
+      <div class="progress-bar" style="margin-top:10px">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Toolbar -->
+    <div class="results-toolbar">
+      <div class="results-count" id="resultsCount">No results yet — configure filters and search</div>
+      <div class="filter-row">
+        <input type="text" id="searchFilter" placeholder="Filter results..." oninput="applyFilter()" />
+        <select id="sortSelect" onchange="applyFilter()">
+          <option value="name">Sort: Name</option>
+          <option value="company">Sort: Company</option>
+          <option value="title">Sort: Title</option>
+        </select>
+        <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Selected strip -->
+    <div class="selected-strip" id="selectedStrip">
+      <strong id="selectedCountText">0 selected</strong>
+      <span style="color:var(--text3)">·</span>
+      <button class="btn-ghost" style="padding:4px 10px;font-size:12px" onclick="exportSelected()">Export selected</button>
+      <button class="btn-ghost" style="padding:4px 10px;font-size:12px" onclick="clearSelection()">Clear</button>
+    </div>
+
+    <!-- Results table -->
+    <div class="table-wrap" id="tableWrap">
+      <div class="state-panel" id="emptyState">
+        <div class="state-icon">◎</div>
+        <div class="state-title">Ready to find prospects</div>
+      </div>
+      <table id="resultsTable" style="display:none">
+        <thead>
+          <tr>
+            <th style="width:36px"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" /></th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Industry</th>
+            <th>Size</th>
+            <th>LinkedIn</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Log -->
+    <div class="log-panel" id="logPanel"></div>
+
+  </div>
+</div>
+
+<script>
+  let allContacts = [];
+  let filtered    = [];
+  let selected    = new Set();
+
+  // Pre-loaded domains by vertical
+  const DOMAIN_MAP = {
+    hospitality: [
+      'acehotel.com','standardhotels.com','graduatehotels.com','kimptonhotels.com',
+      'aubergeresorts.com','sydellgroup.com','sohohouse.com','citizenm.com',
+      'moxy-hotels.marriott.com','1hotels.com','autographcollection.com','tributeportfolio.com'
+    ],
+    food: [
+      'olipop.com','drinkpoppi.com','drinkwaterloo.com','liquid-death.com',
+      'vitaminwater.com','humblebrands.com','plantiful.com','harmlessharvest.com',
+      'blueprintcleanse.com','suja.com','rebbl.co','sossusbrands.com'
+    ],
+    entertainment: [
+      'spiegelworld.com','liveone.com','c3presents.com','boweryelectric.com',
+      'bowleramused.com','secondcity.com','ucbtheatre.com','fantasticnegrito.com',
+      'goldenvoice.com','promowestlive.com','thirtytigers.com','noonchorus.com'
+    ],
+    wellness: [
+      'equinox.com','corepower.com','mindbodyonline.com','headspace.com',
+      'calm.com','peloton.com','myfitnesspal.com','whoop.com',
+      'eight-sleep.com','thorne.com','ritual.com','bulletproof.com'
+    ],
+    events: [
+      'eventbrite.com','experienceparty.com','onefestival.com','remarkableevents.com',
+      'bravada.com','overture.com','punchdrunk.com','transportgroup.org',
+      'sxsw.com','coachella.com','outsidelands.com','bonnaroo.com'
+    ],
+    cannabis: [
+      'kivaconfections.com','wyldcannabis.com','wanabrands.com','camacannabis.com',
+      'dosist.com','kanha.com','plusproducts.com','Bloom.com',
+      'flowhub.com','leafly.com','weedmaps.com','dutchie.com'
+    ],
+    restaurants: [
+      'exploretock.com','resy.com','opentable.com','eataly.com',
+      'unionhospitality.com','noburestaurants.com','tacolicious.com','shakeShack.com',
+      'sweetgreen.com','cava.com','tender-loving-empire.com','tocaya.com'
+    ],
+    sports: [
+      'nba.com','mlb.com','nfl.com','nhl.com',
+      'ussoccer.com','usaswimming.org','theathletesfoot.com','peaksports.com',
+      'onrunning.com','allbirds.com','tracksmith.com','solematesrun.com'
+    ]
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tag toggles — single select for confidence
+    document.querySelectorAll('#verticalTags .tag, #roleTags .tag').forEach(tag => {
+      tag.addEventListener('click', () => tag.classList.toggle('active'));
+    });
+    document.querySelectorAll('#confTags .tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        document.querySelectorAll('#confTags .tag').forEach(t => t.classList.remove('active'));
+        tag.classList.add('active');
+      });
+    });
+
+    document.getElementById('apiKey').addEventListener('input', function() {
+      const key = this.value.trim();
+      if (!key) { setKeyStatus('not connected', null); return; }
+      if (key.length >= 20) setKeyStatus('Key ready', true);
+      else setKeyStatus('Keep typing...', null);
+    });
+  });
+
+  function getActive(groupId) {
+    return [...document.querySelectorAll(`#${groupId} .tag.active`)].map(t => t.dataset.val);
+  }
+
+  function testKey() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key) { setKeyStatus('Enter a key first', false); return; }
+    if (key.length >= 20) setKeyStatus('Key ready — confirm on first search', true);
+    else setKeyStatus('Key looks too short', false);
+  }
+
+  function setKeyStatus(msg, ok) {
+    const el = document.getElementById('keyStatus');
+    el.className = 'key-status' + (ok === true ? ' ok' : ok === false ? ' err' : '');
+    el.innerHTML = `<div class="status-dot"></div> ${msg}`;
+  }
+
+  // ---- Hunter API (CORS-safe) ----
+  async function hunterDomainSearch(domain, key) {
+    const url = `https://api.hunter.io/v2/domain-search?domain=${domain}&api_key=${key}&limit=10`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`${r.status}`);
+    return r.json();
+  }
+
+  // ---- Main search ----
+  async function runSearch() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key) { log('Paste your Hunter.io API key first', 'err'); return; }
+
+    const verticals = getActive('verticalTags');
+    const roles     = getActive('roleTags');
+    const minConf   = parseInt(getActive('confTags')[0] || '50');
+
+    if (!verticals.length) { log('Select at least one vertical', 'err'); return; }
+
+    // Build domain list from selected verticals
+    const domains = [...new Set(verticals.flatMap(v => DOMAIN_MAP[v] || []))];
+
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.textContent = 'Searching...';
+    allContacts = [];
+    selected.clear();
+    clearLog();
+    setProgress(0);
+    document.getElementById('resultsTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+
+    log(`Searching ${domains.length} domains across ${verticals.length} verticals...`, 'info');
+
+    for (let i = 0; i < domains.length; i++) {
+      const domain = domains[i];
+      setProgress(((i + 1) / domains.length) * 100);
+      log(`Searching ${domain}...`);
+
+      try {
+        const data  = await hunterDomainSearch(domain, key);
+        const org   = data.data?.organization || domain;
+        const emails = (data.data?.emails || [])
+          .filter(e => e.confidence >= minConf)
+          .filter(e => {
+            if (!roles.length) return true;
+            const t = (e.position || '').toLowerCase();
+            return roles.some(r => t.includes(r));
+          });
+
+        if (emails.length) {
+          log(`${domain}: ${emails.length} contacts found`, 'ok');
+          emails.forEach(e => allContacts.push({
+            first_name:  e.first_name || '',
+            last_name:   e.last_name  || '',
+            email:       e.value,
+            position:    e.position   || '',
+            confidence:  e.confidence,
+            domain,
+            company:     org,
+            linkedin:    e.linkedin   || '',
+          }));
+        } else {
+          log(`${domain}: no matching contacts`);
+        }
+      } catch(e) {
+        if (e.message === '401') {
+          log('Invalid API key — check your Hunter.io key', 'err');
+          setKeyStatus('Invalid key', false);
+          break;
+        }
+        log(`${domain}: ${e.message}`, 'err');
+      }
+
+      await sleep(250);
+    }
+
+    setProgress(100);
+    log(`Done — ${allContacts.length} prospects found.`, allContacts.length > 0 ? 'ok' : 'err');
+    applyFilter();
+    btn.disabled = false;
+    btn.textContent = 'Search Prospects';
+  }
+
+  // ---- Filter + render ----
+  function applyFilter() {
+    const q    = document.getElementById('searchFilter').value.toLowerCase();
+    const sort = document.getElementById('sortSelect').value;
+
+    filtered = allContacts.filter(p => {
+      if (!q) return true;
+      const hay = [p.first_name, p.last_name, p.email, p.position, p.company, p.domain].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    filtered.sort((a, b) => {
+      if (sort === 'company') return (a.company||'').localeCompare(b.company||'');
+      if (sort === 'title')   return (a.position||'').localeCompare(b.position||'');
+      return (`${a.first_name} ${a.last_name}`).localeCompare(`${b.first_name} ${b.last_name}`);
+    });
+
+    renderTable();
+    updateCount();
+  }
+
+  function renderTable() {
+    if (!filtered.length) {
+      document.getElementById('resultsTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('emptyState').innerHTML = `
+        <div class="state-icon">◎</div>
+        <div class="state-title">${allContacts.length ? 'No results match your filter' : 'Ready to find prospects'}</div>`;
+      return;
+    }
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsTable').style.display = 'table';
+
+    document.getElementById('resultsBody').innerHTML = filtered.map((p, i) => {
+      const name  = `${p.first_name} ${p.last_name}`.trim() || '—';
+      const conf  = p.confidence >= 75 ? 'high' : p.confidence >= 50 ? 'med' : 'low';
+      const clabel = p.confidence >= 75 ? 'high' : p.confidence >= 50 ? 'medium' : 'low';
+      const chk   = selected.has(p.email || i);
+      const li    = p.linkedin ? `<a href="${p.linkedin}" target="_blank" style="color:var(--blue);text-decoration:none;font-family:'DM Mono',monospace;font-size:11px">↗ li</a>` : '—';
+      return `<tr>
+        <td><input type="checkbox" ${chk?'checked':''} onchange="toggleSelect('${p.email||i}', this.checked)" /></td>
+        <td class="td-name">${name}</td>
+        <td class="td-title">${p.position||'—'}</td>
+        <td class="td-company">${p.company||'—'}</td>
+        <td class="td-email">${p.email} <span class="conf-badge conf-${conf}" style="margin-left:6px">${clabel} (${p.confidence}%)</span></td>
+        <td class="td-industry">${p.domain}</td>
+        <td class="td-industry">—</td>
+        <td>${li}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateCount() {
+    const el = document.getElementById('resultsCount');
+    if (!allContacts.length) { el.innerHTML = 'No results yet — configure filters and search'; return; }
+    el.innerHTML = `<strong>${filtered.length}</strong> of ${allContacts.length} prospects`;
+  }
+
+  function toggleSelect(id, val) { if (val) selected.add(id); else selected.delete(id); updateStrip(); }
+  function toggleAll(val) {
+    filtered.forEach((p,i) => val ? selected.add(p.email||i) : selected.delete(p.email||i));
+    renderTable(); updateStrip();
+  }
+  function clearSelection() {
+    selected.clear(); renderTable(); updateStrip();
+    document.getElementById('selectAll').checked = false;
+  }
+  function updateStrip() {
+    const strip = document.getElementById('selectedStrip');
+    if (selected.size > 0) { strip.classList.add('visible'); document.getElementById('selectedCountText').textContent = `${selected.size} selected`; }
+    else strip.classList.remove('visible');
+  }
+
+  function exportCSV(subset) {
+    const rows = subset || (selected.size > 0 ? filtered.filter((p,i) => selected.has(p.email||i)) : filtered);
+    if (!rows.length) { log('Nothing to export', 'err'); return; }
+    const headers = ['First name','Last name','Email','Title','Company','Domain','Confidence','LinkedIn'];
+    const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
+    const csv = [headers, ...rows.map(p => [p.first_name,p.last_name,p.email,p.position,p.company,p.domain,p.confidence+'%',p.linkedin])]
+      .map(r => r.map(esc).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `prospects-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    log(`Exported ${rows.length} contacts`, 'ok');
+  }
+  function exportSelected() { exportCSV(filtered.filter((p,i) => selected.has(p.email||i))); }
+
+  function log(msg, type='') {
+    const panel = document.getElementById('logPanel');
+    const line  = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = `${timestamp()} ${msg}`;
+    panel.appendChild(line);
+    panel.scrollTop = panel.scrollHeight;
+  }
+  function clearLog() { document.getElementById('logPanel').innerHTML = ''; }
+  function timestamp() { return new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+  function setProgress(pct) { document.getElementById('progressFill').style.width = Math.round(pct)+'%'; }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
